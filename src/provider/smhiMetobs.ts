@@ -100,6 +100,9 @@ export function createMetobsClient(args: {
         if (!best || best.distKm > maxStationDistanceKm) return []
 
         const stationKey = best.station.key
+        const stationName = best.station.name
+        const stationLat = best.station.latitude
+        const stationLon = best.station.longitude
 
         // Step 2: fetch latest-day series for selected station for each parameter.
         const [tRes, wsRes, wdRes, rhRes] = await Promise.all([
@@ -129,7 +132,13 @@ export function createMetobsClient(args: {
           byTime.set(v.date, {
             date: new Date(v.date).toISOString(),
             type: 'observation',
-            outside: { temperature: tempC }
+            outside: { temperature: tempC },
+            // Provider-specific extension (not currently part of the core WeatherData type):
+            // attach station identity + coordinates for distance computation in clients.
+            station: {
+              ...(stationName ? { name: stationName } : {}),
+              position: { latitude: stationLat, longitude: stationLon }
+            } as any
           })
         }
 
