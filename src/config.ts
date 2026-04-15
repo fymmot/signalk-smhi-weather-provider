@@ -50,11 +50,19 @@ export const DEFAULT_CONFIG: PluginConfig = {
 
 export function coerceConfig(raw: unknown): PluginConfig {
   const obj = (raw ?? {}) as Partial<PluginConfig>
+  function normalizeApiBase(url: string, requiredSuffix: string): string {
+    const trimmed = String(url ?? '').trim().replace(/\/+$/, '')
+    if (!trimmed) return requiredSuffix
+    // Accept either ".../api" or ".../api/..." style base URLs.
+    if (trimmed.endsWith(requiredSuffix)) return trimmed
+    if (trimmed.includes(`${requiredSuffix}/`)) return trimmed
+    return `${trimmed}${requiredSuffix}`
+  }
   return {
     smhi: {
-      metfcstBaseUrl: obj.smhi?.metfcstBaseUrl ?? DEFAULT_CONFIG.smhi.metfcstBaseUrl,
-      metobsBaseUrl: obj.smhi?.metobsBaseUrl ?? DEFAULT_CONFIG.smhi.metobsBaseUrl,
-      warningsBaseUrl: obj.smhi?.warningsBaseUrl ?? DEFAULT_CONFIG.smhi.warningsBaseUrl,
+      metfcstBaseUrl: normalizeApiBase(obj.smhi?.metfcstBaseUrl ?? DEFAULT_CONFIG.smhi.metfcstBaseUrl, '/api'),
+      metobsBaseUrl: normalizeApiBase(obj.smhi?.metobsBaseUrl ?? DEFAULT_CONFIG.smhi.metobsBaseUrl, '/api'),
+      warningsBaseUrl: (obj.smhi?.warningsBaseUrl ?? DEFAULT_CONFIG.smhi.warningsBaseUrl).trim().replace(/\/+$/, ''),
       warningsFeedPath: obj.smhi?.warningsFeedPath ?? DEFAULT_CONFIG.smhi.warningsFeedPath
     },
     cache: {

@@ -157,6 +157,16 @@ export function createMetobsClient(args: {
         }
 
         mergeSeries(wsValues, (w, n) => {
+          // MetObs parameter IDs have varied in the wild. If a "speed" value looks like a compass
+          // direction (e.g. 70), treat it as direction so clients don't show "70 m/s".
+          // Also treat very high "speeds" as direction: >35 m/s is extreme, but direction in degrees is common.
+          if (n > 35 && n <= 360) {
+            const existing = w.wind ?? {}
+            if (existing.directionTrue == null) {
+              w.wind = { ...existing, directionTrue: n }
+            }
+            return
+          }
           w.wind = { ...(w.wind ?? {}), speedTrue: n }
         })
         mergeSeries(wdValues, (w, n) => {
