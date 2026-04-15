@@ -1,0 +1,42 @@
+{
+  "name": "signalk-smhi-weather-provider",
+  "version": "0.1.0",
+  "description": "Signal K v2 Weather Provider plugin using SMHI Open Data (SNOW forecasts, MetObs observations, CAP warnings).",
+  "license": "MIT",
+  "author": "tommyfeldt",
+  "homepage": "https://github.com/tommyfeldt/smhi-sk-weather-provider",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tommyfeldt/smhi-sk-weather-provider.git"
+  },
+  "keywords": [
+    "signalk",
+    "signalk-node-server-plugin",
+    "weather",
+    "smhi"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "node dist/smoke.js",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "lru-cache": "^11.0.2"
+  },
+  "devDependencies": {
+    "@signalk/server-api": "^2.5.0",
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

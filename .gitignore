@@ -1,0 +1,9 @@
+node_modules/
+dist/
+
+# If tests ever get compiled accidentally, don't commit artifacts
+test/**/*.js
+test/**/*.js.map
+test/**/*.d.ts
+test/**/*.d.ts.map
+
