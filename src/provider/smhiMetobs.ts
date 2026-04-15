@@ -3,6 +3,14 @@ import type { HttpClient } from '../http'
 import { createAsyncCache } from '../cache'
 import { haversineKm, roundCoord } from '../geo'
 
+type WeatherDataWithStation = WeatherData & {
+  // Provider-specific extension used by BoatTracker for station labeling + distance.
+  station?: {
+    name?: string
+    position: { latitude: number; longitude: number }
+  }
+}
+
 type MetobsValue = {
   date: number
   value: string
@@ -125,7 +133,7 @@ export function createMetobsClient(args: {
         const rhValues = rhRes.value ?? []
 
         // Index values by timestamp (ms) for join.
-        const byTime = new Map<number, WeatherData>()
+        const byTime = new Map<number, WeatherDataWithStation>()
         for (const v of tValues) {
           const tempC = Number(v.value)
           if (!Number.isFinite(tempC)) continue
@@ -138,13 +146,13 @@ export function createMetobsClient(args: {
             station: {
               ...(stationName ? { name: stationName } : {}),
               position: { latitude: stationLat, longitude: stationLon }
-            } as any
+            }
           })
         }
 
         function mergeSeries(
           values: MetobsValue[] | undefined,
-          fn: (w: WeatherData, n: number) => void
+          fn: (w: WeatherDataWithStation, n: number) => void
         ) {
           if (!values) return
           for (const v of values) {
