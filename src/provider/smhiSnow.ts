@@ -52,8 +52,17 @@ export function createSnowClient(args: {
 }): SnowClient {
   const cache = createAsyncCache(args.ttlSeconds)
 
+  function formatPathCoord(v: number): string {
+    // SMHI's edge/CDN has historically been picky about path segment formats.
+    // Keep a stable, non-scientific representation with limited decimals.
+    const s = v.toFixed(6)
+    return s.replace(/\.?0+$/, '')
+  }
+
   function makeUrl(pos: { latitude: number; longitude: number }): string {
-    return `${args.metfcstBaseUrl}/category/snow1g/version/1/geotype/point/lon/${pos.longitude}/lat/${pos.latitude}/data.json`
+    const lon = formatPathCoord(pos.longitude)
+    const lat = formatPathCoord(pos.latitude)
+    return `${args.metfcstBaseUrl}/category/snow1g/version/1/geotype/point/lon/${lon}/lat/${lat}/data.json`
   }
 
   return {
