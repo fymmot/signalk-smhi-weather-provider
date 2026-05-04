@@ -73,7 +73,10 @@ export function createSnowClient(args: {
       )}`
       return cache.getOrSet(key, async () => {
         const json = await args.http.getJson<SnowPointResponse>(makeUrl(pos))
-        return json.timeSeries.map((ts): WeatherData => mapSnowTsToPoint(ts))
+        const points = json.timeSeries.map((ts): WeatherData => mapSnowTsToPoint(ts))
+        // WeatherProviderMethods: forecasts must be ascending by date.
+        points.sort((a, b) => a.date.localeCompare(b.date))
+        return points
       })
     },
     clear: () => cache.clear()
