@@ -5,6 +5,8 @@ async function main() {
   const app = {
     debug: console.log,
     error: console.error,
+    getSelfPath: () => null,
+    handleMessage: () => {},
     registerWeatherProvider: () => {}
   }
 

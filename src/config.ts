@@ -1,3 +1,5 @@
+export const VESSEL_POLL_INTERVAL_MINUTES = [15, 30, 60] as const
+
 export type PluginConfig = {
   smhi: {
     metfcstBaseUrl: string
@@ -19,6 +21,11 @@ export type PluginConfig = {
   }
   logging: {
     debug: boolean
+  }
+  vesselPoll: {
+    /** When true, periodically read `navigation.position` and prefetch observations (warms HTTP cache). */
+    enable: boolean
+    pollIntervalMinutes: number
   }
 }
 
@@ -45,6 +52,10 @@ export const DEFAULT_CONFIG: PluginConfig = {
   },
   logging: {
     debug: false
+  },
+  vesselPoll: {
+    enable: false,
+    pollIntervalMinutes: 60
   }
 }
 
@@ -82,7 +93,19 @@ export function coerceConfig(raw: unknown): PluginConfig {
     },
     logging: {
       debug: obj.logging?.debug ?? DEFAULT_CONFIG.logging.debug
+    },
+    vesselPoll: {
+      enable: obj.vesselPoll?.enable ?? DEFAULT_CONFIG.vesselPoll.enable,
+      pollIntervalMinutes: coercePollMinutes(obj.vesselPoll?.pollIntervalMinutes)
     }
   }
+}
+
+function coercePollMinutes(raw: unknown): number {
+  const n = typeof raw === 'number' ? raw : Number(raw)
+  if (VESSEL_POLL_INTERVAL_MINUTES.includes(n as (typeof VESSEL_POLL_INTERVAL_MINUTES)[number])) {
+    return n as (typeof VESSEL_POLL_INTERVAL_MINUTES)[number]
+  }
+  return DEFAULT_CONFIG.vesselPoll.pollIntervalMinutes
 }
 

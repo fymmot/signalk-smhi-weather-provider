@@ -1,5 +1,8 @@
 import type {
+  Delta,
+  Plugin,
   Position,
+  SKVersion,
   WeatherData,
   WeatherForecastType,
   WeatherProvider,
@@ -9,6 +12,7 @@ import type {
 } from '@signalk/server-api'
 
 export type {
+  Plugin,
   Position,
   WeatherData,
   WeatherForecastType,
@@ -21,6 +25,8 @@ export type {
 export type PluginApp = {
   debug: (...args: unknown[]) => void
   error: (...args: unknown[]) => void
+  getSelfPath: (path: string) => unknown
+  handleMessage: (id: string, msg: Partial<Delta>, skVersion?: SKVersion) => void
   registerWeatherProvider: (provider: WeatherProvider) => void
   setPluginStatus?: (msg: string) => void
   setPluginError?: (msg: string) => void

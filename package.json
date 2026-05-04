@@ -1,7 +1,7 @@
 {
   "name": "signalk-smhi-weather-provider",
   "version": "0.1.0",
-  "description": "Signal K v2 Weather Provider for SMHI.",
+  "description": "Signal K v2 Weather Provider for SMHI (Swedish Meteorological and Hydrological Institute).",
   "license": "MIT",
   "author": "tommyfeldt",
   "homepage": "https://github.com/tommyfeldt/smhi-sk-weather-provider",
