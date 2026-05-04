@@ -1,7 +1,7 @@
 {
   "name": "signalk-smhi-weather-provider",
   "version": "0.1.0",
-  "description": "Signal K v2 Weather Provider plugin using SMHI Open Data (SNOW forecasts, MetObs observations, CAP warnings).",
+  "description": "Signal K v2 Weather Provider for SMHI.",
   "license": "MIT",
   "author": "tommyfeldt",
   "homepage": "https://github.com/tommyfeldt/smhi-sk-weather-provider",
