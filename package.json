@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "description": "Signal K v2 Weather Provider for SMHI (Swedish Meteorological and Hydrological Institute).",
   "license": "MIT",
-  "author": "tommyfeldt",
-  "homepage": "https://github.com/tommyfeldt/smhi-sk-weather-provider",
+  "author": "fymmot",
+  "private": false,
+  "homepage": "https://github.com/fymmot/signalk-smhi-weather-provider#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tommyfeldt/smhi-sk-weather-provider.git"
+    "url": "git+https://github.com/fymmot/signalk-smhi-weather-provider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fymmot/signalk-smhi-weather-provider/issues"
   },
   "keywords": [
     "signalk",

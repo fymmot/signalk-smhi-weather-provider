@@ -7,57 +7,28 @@ import { startVesselPoll, stopVesselPoll } from './vesselPoll'
 /** v1 delta context for polled meteo (not `vessels.self`). */
 const METEO_DELTA_CONTEXT = 'smhi'
 
+// Only user-relevant options are exposed. The provider works with no configuration;
+// SMHI endpoints, cache TTLs and network timeout keep sensible defaults (see config.ts).
 const CONFIG_SCHEMA = {
   type: 'object',
   properties: {
-    smhi: {
+    vesselPoll: {
       type: 'object',
-      title: 'SMHI endpoints',
+      title: 'Track vessel position',
+      description:
+        'Periodically fetch weather for your current position and publish it on the Signal K stream (context "smhi"), so weather follows the boat. Off by default; the Weather API works regardless.',
       properties: {
-        metfcstBaseUrl: {
-          type: 'string',
-          title: 'MetFcst base URL',
-          default: 'https://opendata-download-metfcst.smhi.se/api'
+        enable: {
+          type: 'boolean',
+          title: 'Follow the vessel position',
+          default: false
         },
-        metobsBaseUrl: {
-          type: 'string',
-          title: 'MetObs base URL',
-          default: 'https://opendata-download-metobs.smhi.se/api'
-        },
-        warningsBaseUrl: {
-          type: 'string',
-          title: 'Warnings base URL',
-          default: 'https://opendata-download-warnings.smhi.se'
-        },
-        warningsFeedPath: {
-          type: 'string',
-          title: 'Warnings feed path',
-          default: '/ibww/active.json',
-          description:
-            'Path appended to Warnings base URL. Update if SMHI changes their active feed endpoint.'
-        }
-      }
-    },
-    cache: {
-      type: 'object',
-      title: 'Caching',
-      properties: {
-        ttlSecondsForecasts: { type: 'number', title: 'Forecasts TTL (s)', default: 60 },
-        ttlSecondsObservations: { type: 'number', title: 'Observations TTL (s)', default: 60 },
-        ttlSecondsWarnings: { type: 'number', title: 'Warnings TTL (s)', default: 120 },
-        keyDecimals: {
+        pollIntervalMinutes: {
           type: 'number',
-          title: 'Lat/Lon cache key decimals',
-          default: 3,
-          description: 'Rounding applied to cache keys only (not requests).'
+          title: 'Update interval (minutes)',
+          enum: [...VESSEL_POLL_INTERVAL_MINUTES],
+          default: 60
         }
-      }
-    },
-    network: {
-      type: 'object',
-      title: 'Network',
-      properties: {
-        timeoutMs: { type: 'number', title: 'HTTP timeout (ms)', default: 8000 }
       }
     },
     observations: {
@@ -66,35 +37,29 @@ const CONFIG_SCHEMA = {
       properties: {
         maxStationDistanceKm: {
           type: 'number',
-          title: 'Max station distance (km)',
+          title: 'Max weather-station distance (km)',
           default: 150,
-          description: 'If the nearest suitable station is farther away, observations may be empty.'
+          description:
+            'Observations come from the nearest SMHI station. If none is within this distance, observations are empty.'
         }
       }
     },
     logging: {
       type: 'object',
-      title: 'Logging',
+      title: 'Advanced',
       properties: {
         debug: { type: 'boolean', title: 'Debug logging', default: false }
       }
     },
-    vesselPoll: {
+    smhi: {
       type: 'object',
-      title: 'Vessel position polling',
-      description:
-        'When enabled: periodically read navigation.position, prefetch the latest observation (HTTP cache), and emit v1 meteo deltas on context "smhi". Uses a short wake interval and a minimum time between upstream fetches; off by default.',
+      title: 'Advanced — SMHI warnings',
       properties: {
-        enable: {
-          type: 'boolean',
-          title: 'Poll periodically using vessel position',
-          default: false
-        },
-        pollIntervalMinutes: {
-          type: 'number',
-          title: 'Polling interval (minutes)',
-          enum: [...VESSEL_POLL_INTERVAL_MINUTES],
-          default: 60
+        warningsFeedPath: {
+          type: 'string',
+          title: 'Warnings feed path',
+          default: '/ibww/active.json',
+          description: 'Only change this if warnings stop working because SMHI moved their feed.'
         }
       }
     }
@@ -102,21 +67,12 @@ const CONFIG_SCHEMA = {
 }
 
 const CONFIG_UISCHEMA = {
-  logging: {
-    debug: {
-      'ui:widget': 'checkbox',
-      'ui:title': 'Debug logging'
-    }
-  },
   vesselPoll: {
-    enable: {
-      'ui:widget': 'checkbox',
-      'ui:title': ' '
-    },
-    pollIntervalMinutes: {
-      'ui:widget': 'select',
-      'ui:title': 'Polling interval (minutes)'
-    }
+    enable: { 'ui:widget': 'checkbox' },
+    pollIntervalMinutes: { 'ui:widget': 'select' }
+  },
+  logging: {
+    debug: { 'ui:widget': 'checkbox' }
   }
 }
 
