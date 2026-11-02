@@ -17,11 +17,39 @@ describe('SNOW mapping', () => {
       }
     })
     expect(w.type).toBe('point')
-    expect(w.outside?.temperature).toBe(7.5)
+    expect(w.outside?.temperature).toBeCloseTo(280.65)
     expect(w.wind?.speedTrue).toBe(5.2)
-    expect(w.wind?.directionTrue).toBe(180)
+    expect(w.wind?.directionTrue).toBeCloseTo(Math.PI)
     expect(w.outside?.pressure).toBeCloseTo(101320)
     expect(w.description).toContain('symbol_code')
+  })
+
+  it('converts SNOW1g display units to Signal K SI and ratios', () => {
+    // Units per SNOW1g parameter.json: °C, hPa, percent, oktas, km, mm, degrees.
+    const w = mapSnowTsToPoint({
+      time: '2026-11-05T00:00:00Z',
+      data: {
+        air_temperature: 0.6,
+        air_pressure_at_mean_sea_level: 1012.0,
+        relative_humidity: 93,
+        cloud_area_fraction: 6,
+        visibility_in_air: 5.8,
+        precipitation_amount_mean: 0.5,
+        wind_from_direction: 266,
+        wind_speed: 4.0,
+        wind_speed_of_gust: 12.0
+      }
+    })
+    expect(w.outside?.temperature).toBeCloseTo(273.75)
+    expect(w.outside?.pressure).toBeCloseTo(101200)
+    expect(w.outside?.relativeHumidity).toBeCloseTo(0.93, 6)
+    expect(w.outside?.cloudCover).toBeCloseTo(0.75, 6)
+    expect(w.outside?.horizontalVisibility).toBeCloseTo(5800)
+    expect(w.outside?.precipitationVolume).toBeCloseTo(0.0005, 7)
+    expect(w.outside?.dewPointTemperature).toBeUndefined()
+    expect(w.wind?.directionTrue).toBeCloseTo((266 * Math.PI) / 180)
+    expect(w.wind?.speedTrue).toBe(4.0)
+    expect(w.wind?.gust).toBe(12.0)
   })
 
   it('maps SNOW1g precipitation_amount_mean to the step interval amount', () => {
@@ -58,10 +86,11 @@ describe('SNOW mapping', () => {
         symbol_code: 22
       }
     })
-    expect(hourly.outside?.precipitationVolume).toBe(0.5)
-    expect(threeHourly.outside?.precipitationVolume).toBe(1.2)
+    // Signal K precipitationVolume is metres.
+    expect(hourly.outside?.precipitationVolume).toBeCloseTo(0.0005, 7)
+    expect(threeHourly.outside?.precipitationVolume).toBeCloseTo(0.0012, 7)
     expect(deriveDailyFromPointSeries([hourly, threeHourly])[0].outside?.precipitationVolume)
-      .toBeCloseTo(1.7)
+      .toBeCloseTo(0.0017, 7)
   })
 
   it('falls back to total_precipitation_amount and skips the missing sentinel', () => {
@@ -69,7 +98,7 @@ describe('SNOW mapping', () => {
       time: '2026-04-15T12:00:00.000Z',
       data: { total_precipitation_amount: 0.4 }
     })
-    expect(legacy.outside?.precipitationVolume).toBe(0.4)
+    expect(legacy.outside?.precipitationVolume).toBeCloseTo(0.0004, 7)
 
     const missing = mapSnowTsToPoint({
       time: '2026-04-15T12:00:00.000Z',

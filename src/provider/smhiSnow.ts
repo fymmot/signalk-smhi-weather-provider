@@ -2,6 +2,15 @@ import type { WeatherData } from '../types'
 import { createAsyncCache } from '../cache'
 import { roundCoord } from '../geo'
 import type { HttpClient } from '../http'
+import {
+  celsiusToKelvin,
+  degToRad,
+  hPaToPa,
+  kmToM,
+  mmToM,
+  oktasToRatio,
+  percentToRatio
+} from '../units'
 
 type SnowTimeSeriesEntry = {
   time: string
@@ -30,14 +39,6 @@ function num(data: Record<string, number>, key: string): number | undefined {
   if (!Number.isFinite(v)) return undefined
   if (isMissing(v)) return undefined
   return v
-}
-
-function cToCelsius(v: number): number {
-  return v
-}
-
-function hPaToPa(hpa: number): number {
-  return hpa * 100
 }
 
 export type SnowClient = {
@@ -87,13 +88,13 @@ export function createSnowClient(args: {
 export function mapSnowTsToPoint(ts: SnowTimeSeriesEntry): WeatherData {
   const d = ts.data ?? {}
 
-  // Parameter names per SNOW docs; keep this mapping small and expand later.
-  // https://opendata.smhi.se/metfcst/snow1gv1/parameters
+  // Parameter names and units per SNOW1g's parameter.json; SNOW1g has no dew point.
+  // https://opendata-download-metfcst.smhi.se/api/category/snow1g/version/1/parameter.json
   const temperatureC = num(d, 'air_temperature')
   const pressureHpa = num(d, 'air_pressure_at_mean_sea_level')
-  const humidity = num(d, 'relative_humidity')
-  const cloudCover = num(d, 'cloud_area_fraction')
-  const visibilityM = num(d, 'visibility_in_air')
+  const humidityPercent = num(d, 'relative_humidity')
+  const cloudOktas = num(d, 'cloud_area_fraction')
+  const visibilityKm = num(d, 'visibility_in_air')
   // SNOW1g publishes no total_precipitation_amount; precipitation_amount_mean (ensemble mean,
   // kg/m² = mm) is the amount for this step's own interval, intervalParametersStartTime → time:
   // 1 h out to ~+63 h, then 3, 6 and 12 h. Never a rate, so summing a day's steps (as
@@ -101,23 +102,21 @@ export function mapSnowTsToPoint(ts: SnowTimeSeriesEntry): WeatherData {
   const precipMm =
     num(d, 'precipitation_amount_mean') ?? num(d, 'total_precipitation_amount')
   const windSpeed = num(d, 'wind_speed')
-  const windDir = num(d, 'wind_from_direction')
+  const windDirDeg = num(d, 'wind_from_direction')
   const gust = num(d, 'wind_speed_of_gust')
-  const dewPointC = num(d, 'dew_point_temperature')
   const symbol = num(d, 'symbol_code')
 
   const outside: NonNullable<WeatherData['outside']> = {}
-  if (typeof temperatureC === 'number') outside.temperature = cToCelsius(temperatureC)
-  if (typeof dewPointC === 'number') outside.dewPointTemperature = cToCelsius(dewPointC)
+  if (typeof temperatureC === 'number') outside.temperature = celsiusToKelvin(temperatureC)
   if (typeof pressureHpa === 'number') outside.pressure = hPaToPa(pressureHpa)
-  if (typeof humidity === 'number') outside.relativeHumidity = humidity
-  if (typeof cloudCover === 'number') outside.cloudCover = cloudCover
-  if (typeof visibilityM === 'number') outside.horizontalVisibility = visibilityM
-  if (typeof precipMm === 'number') outside.precipitationVolume = precipMm
+  if (typeof humidityPercent === 'number') outside.relativeHumidity = percentToRatio(humidityPercent)
+  if (typeof cloudOktas === 'number') outside.cloudCover = oktasToRatio(cloudOktas)
+  if (typeof visibilityKm === 'number') outside.horizontalVisibility = kmToM(visibilityKm)
+  if (typeof precipMm === 'number') outside.precipitationVolume = mmToM(precipMm)
 
   const wind: NonNullable<WeatherData['wind']> = {}
   if (typeof windSpeed === 'number') wind.speedTrue = windSpeed
-  if (typeof windDir === 'number') wind.directionTrue = windDir
+  if (typeof windDirDeg === 'number') wind.directionTrue = degToRad(windDirDeg)
   if (typeof gust === 'number') wind.gust = gust
 
   const description =

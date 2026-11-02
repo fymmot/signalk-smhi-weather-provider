@@ -2,6 +2,7 @@ import type { WeatherData } from '../types'
 import type { HttpClient } from '../http'
 import { createAsyncCache } from '../cache'
 import { haversineKm, roundCoord } from '../geo'
+import { celsiusToKelvin, degToRad, percentToRatio } from '../units'
 
 type WeatherDataWithStation = WeatherData & {
   // Provider-specific extension used by BoatTracker for station labeling + distance.
@@ -46,13 +47,13 @@ export type MetobsClient = {
   clear: () => void
 }
 
+// Hourly MetObs parameters, per /api/version/1.0/parameter/{id}.json. Not 2: that is the daily
+// mean temperature.
 const DEFAULT_PARAMS = {
-  // Parameter 1 is confirmed by live API response: "Lufttemperatur" (celsius).
-  temperature: 1,
-  // Wind direction / speed / humidity parameter codes vary by product docs; keep configurable later if needed.
-  windDirection: 2,
-  windSpeed: 3,
-  relativeHumidity: 6
+  temperature: 1, // Lufttemperatur, momentanvärde (°C)
+  windDirection: 3, // Vindriktning, 10 min mean (degrees)
+  windSpeed: 4, // Vindhastighet, 10 min mean (m/s)
+  relativeHumidity: 6 // Relativ luftfuktighet, momentanvärde (%)
 } as const
 
 function pickLatest(v?: MetobsValue[]): MetobsValue | undefined {
@@ -140,7 +141,7 @@ export function createMetobsClient(args: {
           byTime.set(v.date, {
             date: new Date(v.date).toISOString(),
             type: 'observation',
-            outside: { temperature: tempC },
+            outside: { temperature: celsiusToKelvin(tempC) },
             // Provider-specific extension (not currently part of the core WeatherData type):
             // attach station identity + coordinates for distance computation in clients.
             station: {
@@ -165,23 +166,13 @@ export function createMetobsClient(args: {
         }
 
         mergeSeries(wsValues, (w, n) => {
-          // MetObs parameter IDs have varied in the wild. If a "speed" value looks like a compass
-          // direction (e.g. 70), treat it as direction so clients don't show "70 m/s".
-          // Also treat very high "speeds" as direction: >35 m/s is extreme, but direction in degrees is common.
-          if (n > 35 && n <= 360) {
-            const existing = w.wind ?? {}
-            if (existing.directionTrue == null) {
-              w.wind = { ...existing, directionTrue: n }
-            }
-            return
-          }
           w.wind = { ...(w.wind ?? {}), speedTrue: n }
         })
         mergeSeries(wdValues, (w, n) => {
-          w.wind = { ...(w.wind ?? {}), directionTrue: n }
+          w.wind = { ...(w.wind ?? {}), directionTrue: degToRad(n) }
         })
         mergeSeries(rhValues, (w, n) => {
-          w.outside = { ...(w.outside ?? {}), relativeHumidity: n }
+          w.outside = { ...(w.outside ?? {}), relativeHumidity: percentToRatio(n) }
         })
 
         const out = Array.from(byTime.values()).sort((a, b) => b.date.localeCompare(a.date))
