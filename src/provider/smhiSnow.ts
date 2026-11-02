@@ -5,6 +5,7 @@ import type { HttpClient } from '../http'
 
 type SnowTimeSeriesEntry = {
   time: string
+  intervalParametersStartTime?: string
   data: Record<string, number>
 }
 
@@ -93,7 +94,12 @@ export function mapSnowTsToPoint(ts: SnowTimeSeriesEntry): WeatherData {
   const humidity = num(d, 'relative_humidity')
   const cloudCover = num(d, 'cloud_area_fraction')
   const visibilityM = num(d, 'visibility_in_air')
-  const precipMm = num(d, 'total_precipitation_amount')
+  // SNOW1g publishes no total_precipitation_amount; precipitation_amount_mean (ensemble mean,
+  // kg/m² = mm) is the amount for this step's own interval, intervalParametersStartTime → time:
+  // 1 h out to ~+63 h, then 3, 6 and 12 h. Never a rate, so summing a day's steps (as
+  // deriveDailyFromPointSeries and clients do) gives that day's total.
+  const precipMm =
+    num(d, 'precipitation_amount_mean') ?? num(d, 'total_precipitation_amount')
   const windSpeed = num(d, 'wind_speed')
   const windDir = num(d, 'wind_from_direction')
   const gust = num(d, 'wind_speed_of_gust')
