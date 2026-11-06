@@ -22,8 +22,8 @@
   ],
   "signalk": {
     "screenshots": [
-      "./assets/screenshots/smhi-weather-light.png",
-      "./assets/screenshots/smhi-weather-dark.png"
+      "./assets/screenshots/route-weather-light.png",
+      "./assets/screenshots/route-weather-dark.png"
     ]
   },
   "main": "dist/index.js",
