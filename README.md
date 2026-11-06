@@ -12,6 +12,8 @@ Provides:
 
 ## Screenshots
 
+Examples of what apps can build on the Signal K Weather API once this provider feeds it.
+
 ![Hourly SMHI wind forecast along a planned route](./assets/screenshots/route-weather-light.png)
 
 *SMHI wind forecast along a planned route, timed to where the boat will be each hour.*
