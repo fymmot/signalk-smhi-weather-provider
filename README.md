@@ -18,9 +18,7 @@ Provides:
 
 ![Freeboard-SK forecast panel filled by this provider](./assets/screenshots/freeboard-forecast.jpg)
 
-*Freeboard-SK's forecast panel at a map position. Freeboard leaves dew point and humidity
-empty: SMHI's forecast has no dew point, and Freeboard reads humidity from a field this
-provider does not set.*
+*Freeboard-SK's forecast panel at a map position.*
 
 ![Nearest SMHI station observation above an hourly point forecast](./assets/screenshots/station-forecast-light.png)
 
