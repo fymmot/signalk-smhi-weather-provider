@@ -10,6 +10,22 @@ Provides:
 - **Forecasts** — point forecasts (hourly, plus a derived daily summary).
 - **Warnings** — SMHI's official impact-based weather warnings.
 
+## Screenshots
+
+![Hourly SMHI wind forecast along a planned route](./assets/screenshots/route-weather-light.png)
+
+*SMHI wind forecast along a planned route, timed to where the boat will be each hour.*
+
+![Freeboard-SK forecast panel filled by this provider](./assets/screenshots/freeboard-forecast.jpg)
+
+*Freeboard-SK's forecast panel at a map position. Freeboard leaves dew point and humidity
+empty: SMHI's forecast has no dew point, and Freeboard reads humidity from a field this
+provider does not set.*
+
+![Nearest SMHI station observation above an hourly point forecast](./assets/screenshots/station-forecast-light.png)
+
+*Latest reading from the nearest SMHI station, and the hourly point forecast.*
+
 ## Requirements
 
 - **Signal K server v2** with the Weather API (server 2.x). The plugin registers

@@ -23,7 +23,10 @@
   "signalk": {
     "screenshots": [
       "./assets/screenshots/route-weather-light.png",
-      "./assets/screenshots/route-weather-dark.png"
+      "./assets/screenshots/freeboard-forecast.jpg",
+      "./assets/screenshots/station-forecast-light.png",
+      "./assets/screenshots/route-weather-dark.png",
+      "./assets/screenshots/station-forecast-dark.png"
     ]
   },
   "main": "dist/index.js",
