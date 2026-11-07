@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- Add an App Store icon.
+
+No change to the plugin's behaviour.
+
 ## 0.2.0
 
 ### Breaking

@@ -1,6 +1,6 @@
 {
   "name": "signalk-smhi-weather-provider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Signal K v2 Weather Provider for SMHI (Swedish Meteorological and Hydrological Institute).",
   "license": "MIT",
   "author": "fymmot",
@@ -21,6 +21,7 @@
     "smhi"
   ],
   "signalk": {
+    "appIcon": "./assets/icon.png",
     "screenshots": [
       "./assets/screenshots/route-weather-light.png",
       "./assets/screenshots/freeboard-forecast.jpg",
