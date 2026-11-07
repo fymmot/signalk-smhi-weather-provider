@@ -2,7 +2,7 @@
 
 ## 0.2.1
 
-- Add an App Store icon.
+- Add an App Store icon and a readable name ("SMHI Weather Provider").
 
 No change to the plugin's behaviour.
 

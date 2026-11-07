@@ -21,6 +21,7 @@
     "smhi"
   ],
   "signalk": {
+    "displayName": "SMHI Weather Provider",
     "appIcon": "./assets/icon.png",
     "screenshots": [
       "./assets/screenshots/route-weather-light.png",
